@@ -1,0 +1,57 @@
+vnfd:vnfd-catalog:
+    vnfd:
+    -   id: test0cirros_with_metrics_vnf
+        name: test0cirros_with_metrics_vnf
+        short-name: test0cirros_with_metrics_vnf
+        version: '1.0'
+        description: A VNF consisting of 1 VDU connected to the management network, with monitoring params
+        logo: osm.png
+        connection-point:
+        -   id: vnf-mgmt
+            name: vnf-mgmt
+            short-name: vnf-mgmt
+            type: VPORT
+        mgmt-interface:
+            cp: vnf-mgmt
+        monitoring-param:
+        -   aggregation-type: AVERAGE
+            id: packets_in_dropped
+            name: packets_in_dropped
+            vdu-monitoring-param:
+                vdu-monitoring-param-ref: packets_in_dropped
+                vdu-ref: mgmtVM
+        -   aggregation-type: AVERAGE
+            id: packets_out_dropped
+            name: packets_out_dropped
+            vdu-monitoring-param:
+                vdu-monitoring-param-ref: packets_out_dropped
+                vdu-ref: mgmtVM
+        -   aggregation-type: AVERAGE
+            id: memory_util
+            name: memory_util
+            vdu-monitoring-param:
+                vdu-monitoring-param-ref: memory_util
+                vdu-ref: mgmtVM
+        vdu:
+        -   id: mgmtVM
+            name: mgmtVM
+            image: cirros_with_pw
+            count: '1'
+            vm-flavor:
+                vcpu-count: '1'
+                memory-mb: '64'
+                storage-gb: '1'
+            interface:
+            -   name: mgmtVM-eth0
+                position: '1'
+                type: EXTERNAL
+                virtual-interface:
+                    type: PARAVIRT
+                external-connection-point-ref: vnf-mgmt
+            monitoring-param:
+            -   id: packets_in_dropped
+                nfvi-metric: packets_in_dropped
+            -   id: packets_out_dropped
+                nfvi-metric: packets_out_dropped
+            -   id: memory_util
+                nfvi-metric: average_memory_utilization
