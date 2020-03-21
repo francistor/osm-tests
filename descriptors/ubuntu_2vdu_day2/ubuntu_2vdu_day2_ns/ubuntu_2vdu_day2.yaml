@@ -1,0 +1,38 @@
+nsd:nsd-catalog:
+    nsd:
+    -   id: ubuntu_2vdu_day2_ns
+        name: ubuntu_2vdu_day2_ns
+        short-name: ubuntu_2vdu_day2_ns
+        description: NS with 2 VNFs ubuntu_2vdu_day2_vnf connected by datanet and mgmtnet VLs
+        version: '1.0'
+        logo: osm.png
+        constituent-vnfd:
+        -   vnfd-id-ref: ubuntu_2vdu_day2_vnf
+            member-vnf-index: '1'
+        -   vnfd-id-ref: ubuntu_2vdu_day2_vnf
+            member-vnf-index: '2'
+        vld:
+        -   id: mgmtnet
+            name: mgmtnet
+            short-name: mgmtnet
+            type: ELAN
+            mgmt-network: 'true'
+            vim-network-name: external
+            vnfd-connection-point-ref:
+            -   vnfd-id-ref: ubuntu_2vdu_day2_vnf
+                member-vnf-index-ref: '1'
+                vnfd-connection-point-ref: vnf-mgmt
+            -   vnfd-id-ref: ubuntu_2vdu_day2_vnf
+                member-vnf-index-ref: '2'
+                vnfd-connection-point-ref: vnf-mgmt
+        -   id: datanet
+            name: datanet
+            short-name: datanet
+            type: ELAN
+            vnfd-connection-point-ref:
+            -   vnfd-id-ref: ubuntu_2vdu_day2_vnf
+                member-vnf-index-ref: '1'
+                vnfd-connection-point-ref: vnf-data
+            -   vnfd-id-ref: ubuntu_2vdu_day2_vnf
+                member-vnf-index-ref: '2'
+                vnfd-connection-point-ref: vnf-data

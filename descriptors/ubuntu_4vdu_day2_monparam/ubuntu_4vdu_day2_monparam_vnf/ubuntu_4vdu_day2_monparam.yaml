@@ -1,0 +1,117 @@
+vnfd:vnfd-catalog:
+    vnfd:
+    -   id: ubuntu_4vdu_day2_monparam_vnf
+        name: ubuntu_4vdu_day2_monparam_vnf
+        short-name: ubuntu_4vdu_day2_monparam_vnf
+        version: '1.0'
+        description: A VNF consisting of 2 VDUs connected to an internal VL, and one VDU with cloud-init. Derived from hackfest 3
+        logo: osm.png
+        connection-point:
+        -   id: vnf-mgmt
+            name: vnf-mgmt
+            short-name: vnf-mgmt
+            type: VPORT
+        -   id: vnf-data
+            name: vnf-data
+            short-name: vnf-data
+            type: VPORT
+        mgmt-interface:
+            cp: vnf-mgmt
+        internal-vld:
+        -   id: internal
+            name: internal
+            short-name: internal
+            type: ELAN
+            internal-connection-point:
+            -   id-ref: mgmtVM-internal
+            -   id-ref: dataVM-internal
+        monitoring-param:
+        -   aggregation-type: AVERAGE
+            id: memory_util
+            name: memory_util
+            vdu-monitoring-param:
+                vdu-monitoring-param-ref: memory_util
+                vdu-ref: mgmtVM
+        vdu:
+        -   id: mgmtVM
+            name: mgmtVM
+            image: bionic-cloud
+            count: '1'
+            vm-flavor:
+                vcpu-count: '1'
+                memory-mb: '350'
+                storage-gb: '5'
+            interface:
+            -   name: mgmtVM-eth0
+                position: '1'
+                type: EXTERNAL
+                virtual-interface:
+                    type: PARAVIRT
+                external-connection-point-ref: vnf-mgmt
+            -   name: mgmtVM-eth1
+                position: '2'
+                type: INTERNAL
+                virtual-interface:
+                    type: PARAVIRT
+                internal-connection-point-ref: mgmtVM-internal
+            internal-connection-point:
+            -   id: mgmtVM-internal
+                name: mgmtVM-internal
+                short-name: mgmtVM-internal
+                type: VPORT
+            monitoring-param:
+            -   id: memory_util
+                nfvi-metric: average_memory_utilization
+            cloud-init-file: cloud-config.txt
+        -   id: dataVM
+            name: dataVM
+            image: bionic-cloud
+            count: '1'
+            vm-flavor:
+                vcpu-count: '1'
+                memory-mb: '350'
+                storage-gb: '5'
+            interface:
+            -   name: dataVM-eth0
+                position: '1'
+                type: INTERNAL
+                virtual-interface:
+                    type: PARAVIRT
+                internal-connection-point-ref: dataVM-internal
+            -   name: dataVM-xe0
+                position: '2'
+                type: EXTERNAL
+                virtual-interface:
+                    type: PARAVIRT
+                external-connection-point-ref: vnf-data
+            internal-connection-point:
+            -   id: dataVM-internal
+                name: dataVM-internal
+                short-name: dataVM-internal
+                type: VPORT
+        vnf-configuration:
+            juju:
+                charm: simple
+            config-access:
+              ssh-access:
+                required: true
+                default-user: ubuntu
+            initial-config-primitive:
+            -   seq: '1'
+                name: config
+                parameter:
+                -   name: ssh-hostname
+                    value: <rw_mgmt_ip>
+                -   name: ssh-username
+                    value: ubuntu
+            -   seq: '2'
+                name: touch
+                parameter:
+                -   name: filename
+                    value: '/tmp/initial.txt'
+            config-primitive:
+            -   name: touch
+                parameter:
+                -   name: filename
+                    data-type: STRING
+                    default-value: '/tmp/day2.txt'

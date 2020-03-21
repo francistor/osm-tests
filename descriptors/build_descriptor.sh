@@ -10,11 +10,13 @@ DESCRIPTORS_DIR="$THIS_DIR"
 function build_descriptor(){
 	descriptor_name=$1;
 
+	echo "Building $descriptor_name";
+
 	cd $DESCRIPTORS_DIR/${descriptor_name};
 
 	# Delete packages
-	rm ${descriptor_name}_ns.tar.gz > /dev/null
-	rm ${descriptor_name}_vnf.tar.gz > /dev/null
+	rm *_ns.tar.gz
+	rm *_vnf.tar.gz
 
 	# Generate checksums
 	cd ${descriptor_name}_vnf;
@@ -26,15 +28,9 @@ function build_descriptor(){
 	cd ..;
 
 	# Generate packages
-	tar -czvf ${descriptor_name}_vnf.tar.gz ${descriptor_name}_vnf
-	tar -czvf ${descriptor_name}_ns.tar.gz ${descriptor_name}_ns
+	tar -czf ${descriptor_name}_vnf.tar.gz ${descriptor_name}_vnf
+	tar -czf ${descriptor_name}_ns.tar.gz ${descriptor_name}_ns
 
-	# Delete in parent
-	ssh $destination rm ${descriptor_name}_vnf.tar.gz ${descriptor_name}_ns.tar.gz
-
-	# Upload to parent
-	scp ${descriptor_name}_vnf.tar.gz $destination
-	scp ${descriptor_name}_ns.tar.gz $destination
 }
 
 build_descriptor $1;

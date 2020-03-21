@@ -1,4 +1,0 @@
-d41d8cd98f00b204e9800998ecf8427e  ./README
-8b446da878085dab71f90c389ccf351c  ./checksums.txt
-bc681c5a4c3cdc09c013df2d2239f3d2  ./icons/osm.png
-e8c53d8fc78ff849a083b5d2613b9674  ./test0cirros_with_metrics_nsd.yaml

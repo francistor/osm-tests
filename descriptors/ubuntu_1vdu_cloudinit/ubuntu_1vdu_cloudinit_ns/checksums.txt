@@ -1,0 +1,4 @@
+d41d8cd98f00b204e9800998ecf8427e  ./README
+8b446da878085dab71f90c389ccf351c  ./checksums.txt
+bc681c5a4c3cdc09c013df2d2239f3d2  ./icons/osm.png
+c7dda1c0d408f87cdf0d0455eb5784d8  ./test00_ns.yaml
