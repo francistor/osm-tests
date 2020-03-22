@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Deletes all network service descriptors
+# Creates and deletes all network services
 
 source $HOME/test-osm.rc
 
@@ -10,26 +10,34 @@ if [ -z "$token" ]; then
   source ../get_token.sh;
 fi
 
-nss=$(curl --silent --insecure -H "Content-Type: application/yaml" -H "Authorization: Bearer $token" -H "Accept: application/yaml" -X GET https://localhost:9999/osm/nslcm/v1/ns_instances | yq r - .id)
+vim_id=$(osm vim-list | grep devstack-vim | cut -d "|" -f 3|xargs)
 
-for ns in $nss
+DESCRIPTORS_DIR=$THIS_DIR/../../descriptors
+cd $DESCRIPTORS_DIR;
+
+for descriptor_dir in *
 do
-  osm ns-delete $ns
-done
-
-echo "Checking for juju orphan models"
-echo 
-
-models=$(juju models --format json|jq .models[].name)
-for model in $models
-do
-  model_name=$(echo $model | tr -d '"')
-  if [ "$model_name" != "admin/default" ] && [ "$model_name" != "admin/controller" ]
-  then
-    echo "Destroying model $model_name"
-    juju destroy-model -y $model_name 2> /dev/null
+  if [ -d $descriptor_dir ]; then
+    NSD_NAME=${descriptor_dir}_ns
+    osm ns-create --wait --nsd_name $NSD_NAME --ns_name $NSD_NAME --ssh_keys $HOME/my-keypair.public --vim_account $vim_id
+    status=$(osm ns-list |grep $NSD_NAME | cut -d "|" -f 5 | xargs)
+    ns_id=$(osm ns-list |grep $NSD_NAME | cut -d "|" -f 3 | xargs)
+    if [ "$status" == "READY" ]
+    then
+	osm ns-delete $NSD_NAME
+	sleep 5
+	juju destroy-model -y $ns_id 2> /dev/null
+	echo "[OK] $NSD_NAME"
+    else
+	echo "[FAILED] $NSD_NAME"
+	exit -1
+    fi
   fi
 done
+
+
+
+
 
 
 
