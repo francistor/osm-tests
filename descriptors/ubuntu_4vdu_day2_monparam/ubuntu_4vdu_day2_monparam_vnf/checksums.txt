@@ -69,5 +69,5 @@ a0bae3518919d044c10a1971d25a6b1d  ./charms/simple/metrics.yaml
 d68501909ee824101f6e6f45ffe7f917  ./charms/simple/tox.ini
 6548f2a077e1034f3b31d46c0589db90  ./charms/simple/.build.manifest
 bc681c5a4c3cdc09c013df2d2239f3d2  ./icons/osm.png
-04984548e041f920e79d2e9040250097  ./ubuntu_4vdu_day2_monparam.yaml
+356b75c11961e3e7bca57fe30cbb2f1b  ./ubuntu_4vdu_day2_monparam.yaml
 af86dccf36679e3726303f3428e8548d  ./cloud_init/cloud-config.txt

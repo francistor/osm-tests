@@ -1,6 +1,6 @@
 d41d8cd98f00b204e9800998ecf8427e  ./README
-4daf3909946da25a1d1fb93918975ff7  ./ubuntu_2vdu_day2.yaml
-1cbeaceb15bf5a163658c02e76463240  ./checksums.txt
+c62cc65bb083d995a43a3f3017c8d1bd  ./ubuntu_2vdu_day2.yaml
+ce74070e9c8ca30722d0c4fe8262b68c  ./checksums.txt
 c2407fb064571bc840675438cea23eda  ./charms/simple/actions.yaml
 b55213cd437885207ee400503da19498  ./charms/simple/lib/charms/sshproxy.py
 d29879475d7baeddf1bffb0d56a4c3b9  ./charms/simple/lib/charms/layer/options.py

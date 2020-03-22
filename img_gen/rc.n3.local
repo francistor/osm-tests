@@ -1,0 +1,5 @@
+#!/bin/bash
+ip addr delete 192.168.122.203/24 dev br-out
+ip addr add 192.168.122.203/24 dev br-ex
+ip link set br-ex up
+ip route add default via 192.168.122.1

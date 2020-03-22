@@ -2,6 +2,8 @@
 
 # Creates and destroys a specific ns a given number of times (1 by default)
 
+source $HOME/test-osm.rc
+
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 NSD=$1

@@ -55,12 +55,12 @@ vnfd:vnfd-catalog:
             cloud-init-file: cloud-config.txt
         -   id: dataVM
             name: dataVM
-            image: bionic-cloud
+            image: cirros_with_pw
             count: '1'
             vm-flavor:
                 vcpu-count: '1'
-                memory-mb: '350'
-                storage-gb: '5'
+                memory-mb: '64'
+                storage-gb: '3'
             interface:
             -   name: dataVM-eth0
                 position: '1'
