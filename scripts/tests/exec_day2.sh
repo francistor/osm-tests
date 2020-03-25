@@ -3,6 +3,13 @@
 # Invoke a day 2 operation and wait for the result
 # The action is executed in the vnf_index 1 and the name of the operation is "touch"
 
+if [ "$1" == "--help" ] 
+then
+	echo "usage: exec_day2.sh <ns name>"
+	echo "The action invoked is 'touch' with param '/tmp/day2-scripted'"
+	exit 0
+fi
+
 NS=$1
 TIMEOUT_SECONDS=100
 

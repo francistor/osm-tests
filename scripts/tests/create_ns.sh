@@ -1,6 +1,13 @@
 #!/bin/bash
 
-# Creates and destroys all the network services of the test suite
+# Creates an instance of the specified network service
+
+if [ "$1" == "--help" ] 
+then
+	echo "usage: create_ns.sh <nsd name>"
+	echo "Will create one instance of the specified network service descriptor"
+	exit 0
+fi
 
 source $HOME/test-osm.rc
 

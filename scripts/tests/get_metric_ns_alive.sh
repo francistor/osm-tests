@@ -2,6 +2,13 @@
 
 # Returns 0 if the ns is found alive in prometheus
 
+if [ "$1" == "--help" ] 
+then
+	echo "usage: get_metric_ns_alive.sh <ns name>"
+	echo "Will return 0 if the NS is found alive in prometheus"
+	exit 0
+fi
+
 NS_NAME=$1
 
 if [ -z "$NS_NAME" ]

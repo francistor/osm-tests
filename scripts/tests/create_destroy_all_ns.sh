@@ -2,6 +2,14 @@
 
 # Creates and deletes all network services
 
+if [ "$1" == "--help" ] 
+then
+	echo "usage: create_destroy_all_ns.sh"
+	echo "no params"
+	echo "Will create one NS per descriptor present in the directory"
+	exit 0
+fi
+
 source $HOME/test-osm.rc
 
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"

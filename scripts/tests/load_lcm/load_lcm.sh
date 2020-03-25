@@ -18,9 +18,10 @@ do
   status=$(osm ns-list | grep $ns_name | cut -d "|" -f 5 | xargs)
   if [ $status != "READY" ]
   then
-          echo "Error in $NSD"
-	  exit -1;
+          echo "Error instantiating $ns_name"
+	  exit -1
   else
-	  echo "done";
+	  osm ns-delete $ns_name
+	  echo "done"
   fi
 done
