@@ -22,8 +22,10 @@ vm_alive=$(curl -s -g $myurl | jq .data.result[0].value[1] | tr -d '"')
 
 if [ $vm_alive == "1" ]
 then
+	echo "Alive"
 	exit 0
 else
+	echo "Not found"
 	exit -1
 fi
 

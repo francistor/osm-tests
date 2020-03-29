@@ -27,6 +27,8 @@ for descriptor_dir in *
 do
   if [ -d $descriptor_dir ]; then
     NSD_NAME=${descriptor_dir}_ns
+    echo 
+    echo "Deploying $descriptor_dir"
     osm ns-create --wait --nsd_name $NSD_NAME --ns_name $NSD_NAME --ssh_keys $HOME/my-keypair.public --vim_account $vim_id
     status=$(osm ns-list |grep $NSD_NAME | cut -d "|" -f 5 | xargs)
     ns_id=$(osm ns-list |grep $NSD_NAME | cut -d "|" -f 3 | xargs)
