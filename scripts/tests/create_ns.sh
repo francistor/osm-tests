@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Creates an instance of the specified network service
+# Creates an instance of the specified network service with the same name as the descriptor
 
 if [ "$1" == "--help" ] 
 then

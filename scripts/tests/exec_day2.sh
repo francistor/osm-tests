@@ -15,17 +15,13 @@ TIMEOUT_SECONDS=100
 
 token=$(curl --insecure -H "Content-Type: application/yaml" -H "Accept: application/yaml" -X POST --data '{username: "test-user", password: "test", project_id: "test-project"}' https://localhost:9999/osm/admin/v1/tokens 2>/dev/null|awk '($1=="id:"){print $2}')
 
-echo $token
-
 # Find the Network Service (yq r – reads from standard input)
 
 ns_id=$(curl --silent --insecure -H "Content-Type: application/yaml" -H "Authorization: Bearer $token" -H "Accept: application/yaml" -X GET  https://localhost:9999/osm/nslcm/v1/ns_instances?name=$NS|yq r - [0]._id)
-echo $ns_id
 
 # Execute the command
 
 operation_id=$(curl --silent --insecure -H "Content-Type: application/yaml" -H "Authorization: Bearer $token" -H "Accept: application/json" -X POST  https://localhost:9999/osm/nslcm/v1/ns_instances/${ns_id}/action -d '{member_vnf_index: "1", primitive: "touch", primitive_params:{filename: "/tmp/day2-scripted"}}' | jq .id | tr -d '"')
-echo $operation_id
 
 # 10 seconds to wait at most
 for ((n=0;n<$TIMEOUT_SECONDS;n++))
@@ -38,6 +34,7 @@ do
   else
     if [ "$status" == "PROCESSING" ]
     then
+      echo -n "."
       sleep 1;
     else
       echo "[FAILED] $status"
