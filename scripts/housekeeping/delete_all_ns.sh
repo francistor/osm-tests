@@ -17,6 +17,7 @@ do
   osm ns-delete $ns
 done
 
+sleep 5
 echo "Checking for juju orphan models"
 echo 
 

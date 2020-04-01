@@ -25,7 +25,7 @@ osm ns-create --wait --nsd_name $NSD --ns_name ${NSD}_$random --ssh_keys $HOME/m
 # Infinite loop invoking day2 operation
 while true
 do
-	$THIS_DIR/../exec_day2.sh ubuntu_2vdu_day2_ns
+	$THIS_DIR/../exec_day2.sh ubuntu_2vdu_day2_ns_$random
 done
 
 
