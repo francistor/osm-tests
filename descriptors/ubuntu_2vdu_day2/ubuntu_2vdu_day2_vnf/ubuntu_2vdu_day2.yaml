@@ -32,7 +32,7 @@ vnfd:vnfd-catalog:
             count: '1'
             vm-flavor:
                 vcpu-count: '1'
-                memory-mb: '350'
+                memory-mb: '250'
                 storage-gb: '5'
             interface:
             -   name: mgmtVM-eth0

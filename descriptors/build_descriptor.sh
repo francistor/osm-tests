@@ -3,7 +3,6 @@
 # Assumes there is a single file name for the vnfd and the ns
 # Must be executed with the descriptor name as a parameter
 
-destination=francisco@n2
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 DESCRIPTORS_DIR="$THIS_DIR"
 

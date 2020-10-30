@@ -17,7 +17,7 @@ then
 	exit;
 fi
 
-myurl=http://localhost:9091/api/v1/query?query=osm_vm_status{ns_name=\"$NS_NAME\",vnf_member_index=\"1\"}
+myurl=http://${OSM_HOST}:9091/api/v1/query?query=osm_vm_status{ns_name=\"$NS_NAME\",vnf_member_index=\"1\"}
 vm_alive=$(curl -s -g $myurl | jq .data.result[0].value[1] | tr -d '"')
 
 if [ $vm_alive == "1" ]

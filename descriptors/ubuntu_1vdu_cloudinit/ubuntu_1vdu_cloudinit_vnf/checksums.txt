@@ -1,5 +1,5 @@
+d41d8cd98f00b204e9800998ecf8427e  ./checksums.txt
 d41d8cd98f00b204e9800998ecf8427e  ./README
-8b446da878085dab71f90c389ccf351c  ./checksums.txt
-813d411067a9faca4c133e03066b5c45  ./test00_vnf.yaml
-bc681c5a4c3cdc09c013df2d2239f3d2  ./icons/osm.png
 c4cf24b5d2c9c8c186a7e77f68b0caed  ./cloud_init/cloud-config.txt
+bc681c5a4c3cdc09c013df2d2239f3d2  ./icons/osm.png
+813d411067a9faca4c133e03066b5c45  ./ubuntu_1vdu_cloudinit_vnf.yaml

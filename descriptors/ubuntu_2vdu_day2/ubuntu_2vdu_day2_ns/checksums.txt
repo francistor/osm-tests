@@ -1,4 +1,4 @@
-d41d8cd98f00b204e9800998ecf8427e  ./README
+d41d8cd98f00b204e9800998ecf8427e  ./checksums.txt
 2b6589fa8189677da24fccbeb611d370  ./ubuntu_2vdu_day2.yaml
-43fb266894bf9dc68c4d63352213638a  ./checksums.txt
+d41d8cd98f00b204e9800998ecf8427e  ./README
 bc681c5a4c3cdc09c013df2d2239f3d2  ./icons/osm.png
