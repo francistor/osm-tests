@@ -16,22 +16,30 @@
 # under the License.
 ##
 
-from charmhelpers.core.hookenv import (
-    config,
-    log,
-)
-import copy
+from charmhelpers.core import unitdata
+
 import io
-import json
+import ipaddress
 import paramiko
 import os
 import socket
+import shlex
 
 from subprocess import (
     Popen,
     CalledProcessError,
     PIPE,
 )
+
+
+def get_config():
+    """Get the current charm configuration.
+
+    Get the "live" kv store every time we need to access the charm config, in
+    case it has recently been changed by a config-changed event.
+    """
+    db = unitdata.kv()
+    return db.get('config')
 
 
 def get_host_ip():
@@ -42,8 +50,22 @@ def get_host_ip():
     is the floating ip, and the second the non-floating ip, for an Openstack
     instance.
     """
-    cfg = config()
+    cfg = get_config()
     return cfg['ssh-hostname'].split(';')[0]
+
+
+def is_valid_hostname(hostname):
+    """Validate the ssh-hostname."""
+    if hostname == "0.0.0.0":
+        return False
+
+    try:
+        ipaddress.ip_address(hostname)
+    except ValueError:
+        return False
+
+    return True
+
 
 def verify_ssh_credentials():
     """Verify the ssh credentials have been installed to the VNF.
@@ -52,21 +74,26 @@ def verify_ssh_credentials():
     """
     verified = False
     status = ''
-    try:
-        cfg = config()
-        if len(cfg['ssh-hostname']) and len(cfg['ssh-username']):
-            cmd = 'hostname'
-            status, err = _run(cmd)
+    cfg = get_config()
 
-            if len(err) == 0:
-                verified = True
+    try:
+        host = get_host_ip()
+        if is_valid_hostname(host):
+            if len(cfg['ssh-hostname']) and len(cfg['ssh-username']):
+                cmd = 'hostname'
+                status, err = _run(cmd)
+
+                if len(err) == 0:
+                    verified = True
+        else:
+            status = "Invalid IP address."
     except CalledProcessError as e:
         status = 'Command failed: {} ({})'.format(
             ' '.join(e.cmd),
             str(e.output)
         )
     except paramiko.ssh_exception.AuthenticationException as e:
-        status = 'Authentication failed.'
+        status = '{}.'.format(e)
     except paramiko.ssh_exception.BadAuthenticationType as e:
         status = '{}'.format(e.explanation)
     except paramiko.ssh_exception.BadHostKeyException as e:
@@ -74,8 +101,11 @@ def verify_ssh_credentials():
             e.expected_key,
             e.got_key,
         )
-    except socket.timeout as error:
+    except (TimeoutError, socket.timeout):
         status = "Timeout attempting to reach {}".format(cfg['ssh-hostname'])
+    except Exception as error:
+        status = 'Unhandled exception: {}'.format(error)
+
     return (verified, status)
 
 
@@ -90,7 +120,10 @@ def charm_dir():
 def run_local(cmd, env=None):
     """Run a command locally."""
     if isinstance(cmd, str):
-        cmd = cmd.split(' ') if ' ' in cmd else [cmd]
+        cmd = shlex.split(cmd) if ' ' in cmd else [cmd]
+
+    if type(cmd) is not list:
+        cmd = [cmd]
 
     p = Popen(cmd,
               env=env,
@@ -107,41 +140,32 @@ def run_local(cmd, env=None):
 
 
 def _run(cmd, env=None):
-    """Run a command, either on the local machine or remotely via SSH."""
+    """Run a command remotely via SSH.
+
+    Note: The previous behavior was to run the command locally if SSH wasn't
+    configured, but that can lead to cases where execution succeeds when you'd
+    expect it not to.
+    """
     if isinstance(cmd, str):
-        cmd = cmd.split(' ') if ' ' in cmd else [cmd]
+        cmd = shlex.split(cmd)
 
-    cfg = None
-    try:
-        cfg = config()
-    except CalledProcessError as e:
-        # We may be running in a restricted context, such as the
-        # collect-metrics hook, so attempt to read the persistent config
-        # TODO: Make this a patch to charmhelpers.hookenv.config()
-        # cfg = Config()
-        CONFIG = os.path.join(charm_dir(), '.juju-persistent-config')
-        cfg = {}
-        with open(CONFIG) as f:
-            data = json.load(f)
-            log(data)
-            for k, v in copy.deepcopy(data).items():
-                if k not in cfg:
-                    log("{}={}".format(k, v))
-                    cfg[k] = v
-    finally:
-        pass
+    if type(cmd) is not list:
+        cmd = [cmd]
 
-    if all(k in cfg for k in ['ssh-hostname', 'ssh-username',
-                              'ssh-password', 'ssh-private-key']):
-        host = cfg['ssh-hostname']
-        user = cfg['ssh-username']
-        passwd = cfg['ssh-password']
-        key = cfg['ssh-private-key']  # DEPRECATED
+    cfg = get_config()
 
-        if host and user:
-            return ssh(cmd, host, user, passwd, key)
+    if cfg:
+        if all(k in cfg for k in ['ssh-hostname', 'ssh-username',
+                                  'ssh-password', 'ssh-private-key']):
+            host = get_host_ip()
+            user = cfg['ssh-username']
+            passwd = cfg['ssh-password']
+            key = cfg['ssh-private-key']  # DEPRECATED
 
-    return run_local(cmd, env)
+            if host and user:
+                return ssh(cmd, host, user, passwd, key)
+
+    raise Exception("Invalid SSH credentials.")
 
 
 def get_ssh_client(host, user, password=None, key=None):

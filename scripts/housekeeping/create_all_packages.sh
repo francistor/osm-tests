@@ -11,8 +11,8 @@ cd $DESCRIPTORS_DIR;
 for descriptor_dir in *
 do
   if [ -d $descriptor_dir ]; then
-    osm vnfd-create ${descriptor_dir}/${descriptor_dir}_vnf.tar.gz
-    osm nsd-create ${descriptor_dir}/${descriptor_dir}_ns.tar.gz
+    osm vnfpkg-create ${descriptor_dir}/${descriptor_dir}_vnf
+    osm nspkg-create ${descriptor_dir}/${descriptor_dir}_ns
   fi
 done
 

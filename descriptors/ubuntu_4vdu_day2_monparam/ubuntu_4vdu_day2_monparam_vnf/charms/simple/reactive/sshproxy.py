@@ -15,24 +15,37 @@
 # under the License.
 ##
 
+from charmhelpers.core import unitdata
 from charmhelpers.core.hookenv import (
     action_fail,
     action_get,
     action_set,
     config,
+    log,
+    status_set,
+    DEBUG,
 )
+
+from charms.reactive.flags import register_trigger
+
 from charms.reactive import (
-    remove_state,
-    set_state,
+    clear_flag,
+    set_flag,
     when,
     when_not,
+    when_any,
 )
 import charms.sshproxy
 import os
 import subprocess
 
+# Register a trigger so that we can respond to config.changed, even if
+# it's being cleared by another handler
+register_trigger(when='config.changed',
+                 set_flag='sshproxy.reconfigure')
 
-@when('config.changed')
+
+@when_any('config.changed', 'sshproxy.reconfigure')
 def ssh_configured():
     """Check if charm is properly configured.
 
@@ -49,12 +62,33 @@ def ssh_configured():
     def run_local_command(cmd):
         ...
     """
+    log("Checking sshproxy configuration", DEBUG)
     cfg = config()
-    if all(k in cfg for k in ['ssh-hostname', 'ssh-username',
-                              'ssh-password', 'ssh-private-key']):
-        set_state('sshproxy.configured')
+    ssh_keys = ['ssh-hostname', 'ssh-username',
+                'ssh-password', 'ssh-private-key']
+
+    if all(k in cfg for k in ssh_keys):
+
+        # Store config in unitdata so it's accessible to sshproxy
+        db = unitdata.kv()
+        db.set('config', cfg)
+
+        # Explicitly flush the kv so it's immediately available
+        db.flush()
+
+        log("Verifying ssh credentials...", DEBUG)
+        (verified, output) = charms.sshproxy.verify_ssh_credentials()
+        if verified:
+            log("SSH credentials verified.", DEBUG)
+            set_flag('sshproxy.configured')
+            status_set('active', 'Ready!')
+        else:
+            clear_flag('sshproxy.configured')
+            status_set('blocked', "Verification failed: {}".format(output))
     else:
-        remove_state('sshproxy.configured')
+        log("No ssh credentials configured", DEBUG)
+        clear_flag('sshproxy.configured')
+        status_set('blocked', 'Invalid SSH credentials.')
 
 
 def generate_ssh_key():
@@ -99,7 +133,7 @@ def action_generate_ssh_key():
         action_fail('Command failed: %s (%s)' %
                     (' '.join(e.cmd), str(e.output)))
     finally:
-        remove_state('actions.generate-ssh-key')
+        clear_flag('actions.generate-ssh-key')
 
 
 def get_ssh_public_key():
@@ -122,7 +156,7 @@ def action_get_ssh_public_key():
         action_fail('Command failed: %s (%s)' %
                     (' '.join(e.cmd), str(e.output)))
     finally:
-        remove_state('actions.get-ssh-public-key')
+        clear_flag('actions.get-ssh-public-key')
 
 
 @when('actions.verify-ssh-credentials')
@@ -137,12 +171,12 @@ def action_verify_ssh_credentials():
             'output': output,
             'verified': verified,
         })
-        if not validated:
+        if not verified:
             action_fail("Verification failed: {}".format(
                 output,
             ))
     finally:
-        remove_state('actions.verify-ssh-credentials')
+        clear_flag('actions.verify-ssh-credentials')
 
 
 @when('actions.run')
@@ -163,11 +197,13 @@ def run_command():
         action_fail('Command failed: %s (%s)' %
                     (' '.join(e.cmd), str(e.output)))
     finally:
-        remove_state('actions.run')
+        clear_flag('actions.run')
 
 
 @when_not('sshproxy.installed')
 def install_vnf_ubuntu_proxy():
     """Install and Configure SSH Proxy."""
+
+    log("Generating SSH key...", DEBUG)
     generate_ssh_key()
-    set_state('sshproxy.installed')
+    set_flag('sshproxy.installed')

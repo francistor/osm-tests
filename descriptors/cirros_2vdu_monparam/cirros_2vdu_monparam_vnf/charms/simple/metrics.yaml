@@ -1,5 +1,0 @@
-metrics:
-  uptime:
-    type: gauge
-    description: "Uptime of the VNF"
-    command: awk '{print $1}' /proc/uptime
