@@ -1,2 +1,2 @@
-a6e4ddb8eb3571907b19da18da2e1fd2	cirros_2vdu_monparam_vnf/cirros_2vdu_monparam.vnfd.yaml
+ff07a46ff3a88e63fee70d876535d72b	cirros_2vdu_monparam_vnf/cirros_2vdu_monparam.vnfd.yaml
 bc681c5a4c3cdc09c013df2d2239f3d2	cirros_2vdu_monparam_vnf/icons/osm.png

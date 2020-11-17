@@ -15,22 +15,64 @@ vnfd:vnfd-catalog:
             cp: vnf-mgmt
         monitoring-param:
         -   aggregation-type: AVERAGE
-            id: packets_in_dropped
-            name: packets_in_dropped
+            id: m_cpu_utilization
+            name: m_cpu_utilization
             vdu-monitoring-param:
-                vdu-monitoring-param-ref: packets_in_dropped
+                vdu-monitoring-param-ref: p_cpu_utilization
                 vdu-ref: mgmtVM
         -   aggregation-type: AVERAGE
-            id: packets_out_dropped
-            name: packets_out_dropped
+            id: m_memory_utilization
+            name: m_memory_utilization
             vdu-monitoring-param:
-                vdu-monitoring-param-ref: packets_out_dropped
+                vdu-monitoring-param-ref: p_memory_utilization
                 vdu-ref: mgmtVM
         -   aggregation-type: AVERAGE
-            id: memory_util
-            name: memory_util
+            id: m_disk_read_ops
+            name: m_disk_read_ops
             vdu-monitoring-param:
-                vdu-monitoring-param-ref: memory_util
+                vdu-monitoring-param-ref: p_disk_read_ops
+                vdu-ref: mgmtVM
+        -   aggregation-type: AVERAGE
+            id: m_disk_write_ops
+            name: m_disk_write_ops
+            vdu-monitoring-param:
+                vdu-monitoring-param-ref: p_disk_write_ops
+                vdu-ref: mgmtVM
+        -   aggregation-type: AVERAGE
+            id: m_disk_read_bytes
+            name: m_disk_read_bytes
+            vdu-monitoring-param:
+                vdu-monitoring-param-ref: p_disk_read_bytes
+                vdu-ref: mgmtVM
+        -   aggregation-type: AVERAGE
+            id: m_disk_write_bytes
+            name: m_disk_write_bytes
+            vdu-monitoring-param:
+                vdu-monitoring-param-ref: p_disk_write_bytes
+                vdu-ref: mgmtVM
+        -   aggregation-type: AVERAGE
+            id: m_packets_received
+            name: m_packets_received
+            vdu-monitoring-param:
+                vdu-monitoring-param-ref: p_packets_received
+                vdu-ref: mgmtVM
+        -   aggregation-type: AVERAGE
+            id: m_packets_sent
+            name: m_packets_sent
+            vdu-monitoring-param:
+                vdu-monitoring-param-ref: p_packets_sent
+                vdu-ref: mgmtVM 
+        -   aggregation-type: AVERAGE
+            id: m_packets_in_dropped
+            name: m_packets_in_dropped
+            vdu-monitoring-param:
+                vdu-monitoring-param-ref: p_packets_in_dropped
+                vdu-ref: mgmtVM
+        -   aggregation-type: AVERAGE
+            id: m_packets_out_dropped
+            name: m_packets_out_dropped
+            vdu-monitoring-param:
+                vdu-monitoring-param-ref: p_packets_out_dropped
                 vdu-ref: mgmtVM
         vdu:
         -   id: mgmtVM
@@ -39,7 +81,7 @@ vnfd:vnfd-catalog:
             count: '1'
             vm-flavor:
                 vcpu-count: '1'
-                memory-mb: '45'
+                memory-mb: '64'
                 storage-gb: '1'
             interface:
             -   name: mgmtVM-eth0
@@ -49,9 +91,23 @@ vnfd:vnfd-catalog:
                     type: PARAVIRT
                 external-connection-point-ref: vnf-mgmt
             monitoring-param:
-            -   id: packets_in_dropped
-                nfvi-metric: packets_in_dropped
-            -   id: packets_out_dropped
-                nfvi-metric: packets_out_dropped
-            -   id: memory_util
+            -   id: p_cpu_utilization
+                nfvi-metric: cpu_utilization
+            -   id: p_memory_utilization
                 nfvi-metric: average_memory_utilization
+            -   id: p_disk_read_ops
+                nfvi-metric: disk_read_ops
+            -   id: p_disk_write_ops
+                nfvi-metric: disk_write_ops
+            -   id: p_disk_read_bytes
+                nfvi-metric: disk_read_bytes
+            -   id: p_disk_write_bytes
+                nfvi-metric: disk_write_bytes
+            -   id: p_packets_received
+                nfvi-metric: packets_received
+            -   id: p_packets_sent
+                nfvi-metric: packets_sent
+            -   id: p_packets_in_dropped
+                nfvi-metric: packets_in_dropped
+            -   id: p_packets_out_dropped
+                nfvi-metric: packets_out_dropped

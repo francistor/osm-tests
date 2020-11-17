@@ -4,7 +4,7 @@
 
 if [ "$1" == "--help" ] 
 then
-	echo "usage: multi_create_ns.sh <ns name> <number of iterations>"
+	echo "usage: multi_create_ns.sh <nsd name> <number of times>"
 	echo "Creates the ns the specified number of times"
 	exit 0
 fi
