@@ -4,15 +4,17 @@
 
 source $HOME/test-osm.rc
 
-THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-DESCRIPTORS_DIR=$THIS_DIR/../../descriptors
-cd $DESCRIPTORS_DIR;
+# This defines the array "packages"
+source package_list.sh
 
-for descriptor_dir in *
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+DESCRIPTORS_DIR=$HOME/osm-packages
+
+for descriptor in ${packages[@]}
 do
   if [ -d $descriptor_dir ]; then
-    osm vnfpkg-create ${descriptor_dir}/${descriptor_dir}_vnf
-    osm nspkg-create ${descriptor_dir}/${descriptor_dir}_ns
+    osm vnfpkg-create $DESCRIPTORS_DIR/${descriptor}_vnf
+    osm nspkg-create $DESCRIPTORS_DIR/${descriptor}_ns
   fi
 done
 

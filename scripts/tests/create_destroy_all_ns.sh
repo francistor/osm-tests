@@ -12,6 +12,9 @@ fi
 
 source $HOME/test-osm.rc
 
+# This defines the array "packages"
+source package_list.sh
+
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 if [ -z "$token" ]; then
@@ -20,15 +23,11 @@ fi
 
 vim_id=$(osm vim-list | grep devstack-vim | cut -d "|" -f 3|xargs)
 
-DESCRIPTORS_DIR=$THIS_DIR/../../descriptors
-cd $DESCRIPTORS_DIR;
-
-for descriptor_dir in *
+for descriptor in ${packages[@]}
 do
-  if [ -d $descriptor_dir ]; then
-    NSD_NAME=${descriptor_dir}_ns
+    NSD_NAME=${descriptor}_ns
     echo 
-    echo "Deploying $descriptor_dir"
+    echo "Deploying $NSD_NAME"
     osm ns-create --wait --nsd_name $NSD_NAME --ns_name $NSD_NAME --ssh_keys $HOME/my-keypair.public --vim_account $vim_id
     status=$(osm ns-list |grep $NSD_NAME | cut -d "|" -f 5 | xargs)
     ns_id=$(osm ns-list |grep $NSD_NAME | cut -d "|" -f 3 | xargs)
@@ -36,13 +35,11 @@ do
     then
 	osm ns-delete $NSD_NAME
 	sleep 5
-	juju destroy-model -y $ns_id 2> /dev/null
 	echo "[OK] $NSD_NAME"
     else
 	echo "[FAILED] $NSD_NAME"
 	exit -1
     fi
-  fi
 done
 
 

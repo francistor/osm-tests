@@ -127,7 +127,8 @@ class CollectorService:
         metrics = []
 
         start_time = time.time()
-        with concurrent.futures.ProcessPoolExecutor(10) as executor:
+        # TODO: Configure the number of polling processes
+        with concurrent.futures.ProcessPoolExecutor(20) as executor:
             futures = []
             for vnfr in vnfrs:
                 nsr_id = vnfr['nsr-id-ref']

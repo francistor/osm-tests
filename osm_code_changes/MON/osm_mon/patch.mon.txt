@@ -1,0 +1,7 @@
+MON_POD_NAME=$(kubectl -n osm get pods -l app=mon -o jsonpath='{.items[0].metadata.name}')
+CODE_HOME=/home/francisco/osm-tests/osm_code_changes/MON/osm_mon
+kubectl cp $CODE_HOME/collector/collector.py osm/$MON_POD_NAME:/usr/lib/python3/dist-packages/osm_mon/collector/collector.py
+kubectl cp $CODE_HOME/collector/service_process.py osm/$MON_POD_NAME:/usr/lib/python3/dist-packages/osm_mon/collector/service.py
+kubectl cp $CODE_HOME/collector/vnf_collectors/openstack.py osm/$MON_POD_NAME:/usr/lib/python3/dist-packages/osm_mon/collector/vnf_collectors/openstack.py
+
+

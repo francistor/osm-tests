@@ -39,10 +39,9 @@ from osm_mon.collector.vnf_metric import VnfMetric
 from osm_mon.core.common_db import CommonDbClient
 from osm_mon.core.config import Config
 
-
 log = logging.getLogger(__name__)
 
-# Add bytes stats to network, not only packets
+# OSM external names to internal names
 METRIC_MAPPINGS = {
     "average_memory_utilization": "memory.usage",
     "disk_read_ops": "disk.read.requests.rate",
@@ -57,17 +56,28 @@ METRIC_MAPPINGS = {
 }
 
 # Metric mapping -> Operation to fetch in gnocchi, aggregation type | scaling factor if dynamic aggregate
-GNOCCHI_OPERATIONS = {
-    "memory.usage": ["(metric memory.usage mean)", "mean"],
+# For each metric name, specifies some parameter for the query in gnocchi
+# - Metric name : parameters
+# Parameters are
+# 1. Operation for fetch in Gnocchi.  See https://gnocchi.xyz/rest.html#dynamic-aggregates
+#       Possible syntax
+#       (metric <metric-id> <aggregation>) --> Simple metric retieval
+#       (aggregate <aggregation method> (operation)) --> Dynamic aggregation. Notice that this is recursive
+# 2. Aggregation name to retrieve from the result.
+#       If the operation was a metric retrieval, "mean" is used normally
+#       If the operation was a dynamic aggregation, the parameter is not used
+# 3. Scale factor to apply to the result
+GNOCCHI_OPERATIONS_PARAMS = {
+    "memory.usage": ["(metric memory.usage mean)", "mean", 1],
     "cpu": ["(aggregate rate:mean (metric cpu mean))", 0.0000001],
-    "disk.read.requests.rate": ["(aggregate rate:mean (metric disk.device.read.requests mean))", 1],
-    "disk.write.requests.rate": ["(aggregate rate:mean (metric disk.device.write.requests mean))", 1],
-    "disk.read.bytes.rate": ["(aggregate rate:mean (metric disk.device.read.bytes mean))", 1],
-    "disk.write.bytes.rate": ["(aggregate rate:mean (metric disk.device.write.bytes mean))", 1],
-    "network.incoming.packets.drop": ["(metric network.incoming.packets.drop mean)", "mean"],
-    "network.outgoing.packets.drop": ["(metric network.outgoing.packets.drop mean)", "mean"],
-    "network.incoming.packets.rate": ["(aggregate rate:mean (metric network.incoming.packets mean))", 1],
-    "network.outgoing.packets.rate": ["(aggregate rate:mean (metric network.outgoing.packets mean))", 1]
+    "disk.read.requests.rate": ["(aggregate rate:mean (metric disk.device.read.requests mean))", "not-used", 1],
+    "disk.write.requests.rate": ["(aggregate rate:mean (metric disk.device.write.requests mean))", "not-used", 1],
+    "disk.read.bytes.rate": ["(aggregate rate:mean (metric disk.device.read.bytes mean))", "not-used", 1],
+    "disk.write.bytes.rate": ["(aggregate rate:mean (metric disk.device.write.bytes mean))", "not-used", 1],
+    "network.incoming.packets.drop": ["(metric network.incoming.packets.drop mean)", "mean", 1],
+    "network.outgoing.packets.drop": ["(metric network.outgoing.packets.drop mean)", "mean", 1],
+    "network.incoming.packets.rate": ["(aggregate rate:mean (metric network.incoming.packets mean))", "not-used", 1],
+    "network.outgoing.packets.rate": ["(aggregate rate:mean (metric network.outgoing.packets mean))", "not-used", 1]
 }
 
 INTERFACE_METRICS = ['packets_in_dropped', 'packets_out_dropped', 'packets_received', 'packets_sent']
@@ -117,9 +127,10 @@ class OpenstackCollector(BaseVimCollector):
             vdu = next(
                 filter(lambda vdu: vdu['id'] == vdur['vdu-id-ref'], vnfd['vdu'])
             )
-            if 'monitoring-param' in vdu:
-                for param in vdu['monitoring-param']:
-                    metric_name = param['nfvi-metric']
+
+            if 'monitoring-parameter' in vdu:
+                for param in vdu['monitoring-parameter']:
+                    metric_name = param['performance-metric']
                     interface_name = param['interface-name-ref'] if 'interface-name-ref' in param else None
                     openstack_metric_name = METRIC_MAPPINGS[metric_name]
                     metric_type = self._get_metric_type(metric_name, interface_name)
@@ -132,8 +143,8 @@ class OpenstackCollector(BaseVimCollector):
                             vdur['name'], vnf_member_index, nsr_id)
                         continue
                     try:
-                        log.debug("Collecting metric type: %s and metric_name: %s and resource_id %s and "
-                                 "interface_name: %s"  % (metric_type, metric_name, resource_id, interface_name))
+                        log.debug("Collecting metric type: %s and metric_name: %s and resource_id %s and interface_name: %s"
+                                  % (metric_type, metric_name, resource_id, interface_name))
                         value = self.backend.collect_metric(metric_type, openstack_metric_name, resource_id,
                                                             interface_name)
                         if value is not None:
@@ -208,7 +219,7 @@ class GnocchiBackend(OpenstackBackend):
             log.debug("No metric %s found of type %s for resource %s and interface name %s" % (metric_name, metric_type, resource_id, interface_name))
 
         except Exception as e:
-            log.error("Error collecting metric %s found of type %s for resource %s and interface name %s" % (metric_name, metric_type, resource_id, interface_name, e))
+            log.error("Error collecting metric %s found of type %s for resource %s and interface name %s %s" % (metric_name, metric_type, resource_id, interface_name, e))
 
         else:
             raise Exception('Unknown metric type %s' % metric_type.value)
@@ -228,6 +239,7 @@ class GnocchiBackend(OpenstackBackend):
 
             return self._collect_metric(openstack_metric_name, resource_id=interfaces[0]['id'])
 
+    # TODO: Add the possibility to get the metrics for a single disk, as done for interfaces
     def _collect_disk_all_metric(self, openstack_metric_name, resource_id):
         total_measure = float(0)
         disks = self.client.resource.search(resource_type='instance_disk',
@@ -253,25 +265,25 @@ class GnocchiBackend(OpenstackBackend):
 
     def _collect_metric(self, openstack_metric_name, resource_id):
         value = None
-        gnocchi_operation = GNOCCHI_OPERATIONS.get(openstack_metric_name)
-        if gnocchi_operation:
+        gnocchi_operation_params = GNOCCHI_OPERATIONS_PARAMS.get(openstack_metric_name)
+        if gnocchi_operation_params:
 
             start_time=time.time()
             agg = self.client.aggregates.fetch(
-                operations=gnocchi_operation[0],
+                operations=gnocchi_operation_params[0],
                 search={"=": {"id": resource_id}},
                 start=time.time() - 1200)
             end_time=time.time()
             log.debug("Collection of %s for resource %s took %s seconds", openstack_metric_name, resource_id, end_time - start_time)
             try:
                 if 'aggregated' in agg['measures']:
-                    # It is a dynamic aggregation, used for rates. The second parameter in gnocchi_operation is the
-                    # scaling factor to apply after dividing by the main aggregation time
-                    value = float((agg['measures']['aggregated'][-1][2] / agg['measures']['aggregated'][-1][1]) * gnocchi_operation[1])
+                    # It is a dynamic aggregation, used for rates. The third parameter in gnocchi_operation is the
+                    # scaling factor to apply after dividing by the main aggregation time, and the second is unused
+                    value = float((agg['measures']['aggregated'][-1][2] / agg['measures']['aggregated'][-1][1]) * gnocchi_operation_params[2])
 
                 else:
                     # Otherwise, the second parameter in gnocchi_operation is the aggregation method name to retrieve
-                    value = float(agg['measures'][resource_id][openstack_metric_name][gnocchi_operation[1]][-1][2])
+                    value = float(agg['measures'][resource_id][openstack_metric_name][gnocchi_operation_params[1]][-1][2]) * gnocchi_operation_params[2]
             except Exception as e:
                 log.debug("Empty metric %s for resource %s" % (openstack_metric_name, resource_id))
 

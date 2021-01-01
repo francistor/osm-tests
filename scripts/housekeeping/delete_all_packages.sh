@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Deletes all network service descriptors
+# Deletes all network service and vnf descriptors
 
 source $HOME/test-osm.rc
 
@@ -10,7 +10,7 @@ if [ -z "$token" ]; then
   source ../get_token.sh;
 fi
 
-nsds=$(curl --silent --insecure -H "Content-Type: application/yaml" -H "Authorization: Bearer $token" -H "Accept: application/yaml" -X GET  https://${OSM_HOSTNAME}:${OSM_PORT}/osm/nsd/v1/ns_descriptors | yq r - .id)
+nsds=$(curl --silent --insecure -H "Content-Type: application/yaml" -H "Authorization: Bearer $token" -H "Accept: application/yaml" -X GET  https://${OSM_HOSTNAME}:9999/osm/nsd/v1/ns_descriptors | yq e '.[].id' -)
 
 for nsd in $nsds
 do
@@ -18,7 +18,7 @@ do
 done
 
 
-vnfds=$(curl --silent --insecure -H "Content-Type: application/yaml" -H "Authorization: Bearer $token" -H "Accept: application/yaml" -X GET  https://${OSM_HOSTNAME}:${OSM_PORT}/osm/vnfpkgm/v1/vnf_packages | yq r - .id)
+vnfds=$(curl --silent --insecure -H "Content-Type: application/yaml" -H "Authorization: Bearer $token" -H "Accept: application/yaml" -X GET  https://${OSM_HOSTNAME}:9999/osm/vnfpkgm/v1/vnf_packages | yq e '.[].id' -)
 
 for vnfd in $vnfds
 do

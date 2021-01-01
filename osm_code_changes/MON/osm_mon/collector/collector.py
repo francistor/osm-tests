@@ -23,8 +23,6 @@
 import logging
 import time
 
-import peewee
-
 from osm_mon.collector.backends.prometheus import PrometheusBackend
 from osm_mon.collector.service import CollectorService
 from osm_mon.core.config import Config
@@ -59,10 +57,6 @@ class Collector:
                     time.sleep(sleep_time)
                 else:
                     log.warning("Collector is getting behind by %s seconds", sleep_time)
-
-            except peewee.PeeweeException:
-                log.exception("Database error consuming message: ")
-                raise
 
             except Exception:
                 log.exception("Error collecting metrics")
