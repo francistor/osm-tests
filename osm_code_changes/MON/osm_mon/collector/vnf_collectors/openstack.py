@@ -69,7 +69,7 @@ METRIC_MAPPINGS = {
 # 3. Scale factor to apply to the result
 GNOCCHI_OPERATIONS_PARAMS = {
     "memory.usage": ["(metric memory.usage mean)", "mean", 1],
-    "cpu": ["(aggregate rate:mean (metric cpu mean))", 0.0000001],
+    "cpu": ["(aggregate rate:mean (metric cpu mean))", "not-used", 0.0000001],
     "disk.read.requests.rate": ["(aggregate rate:mean (metric disk.device.read.requests mean))", "not-used", 1],
     "disk.write.requests.rate": ["(aggregate rate:mean (metric disk.device.write.requests mean))", "not-used", 1],
     "disk.read.bytes.rate": ["(aggregate rate:mean (metric disk.device.read.bytes mean))", "not-used", 1],
@@ -127,7 +127,6 @@ class OpenstackCollector(BaseVimCollector):
             vdu = next(
                 filter(lambda vdu: vdu['id'] == vdur['vdu-id-ref'], vnfd['vdu'])
             )
-
             if 'monitoring-parameter' in vdu:
                 for param in vdu['monitoring-parameter']:
                     metric_name = param['performance-metric']
