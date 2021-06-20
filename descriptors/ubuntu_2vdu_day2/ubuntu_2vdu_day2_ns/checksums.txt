@@ -1,2 +1,0 @@
-2b6589fa8189677da24fccbeb611d370	ubuntu_2vdu_day2_ns/ubuntu_2vdu_day2.nsd.yaml
-bc681c5a4c3cdc09c013df2d2239f3d2	ubuntu_2vdu_day2_ns/icons/osm.png

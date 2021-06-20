@@ -1,2 +1,0 @@
-10a4eaa4027da6da25f58d1971fac065	ubuntu_4vdu_day2_monparam_ns/ubuntu_4vdu_day2_monparam_nsd.nsd.yaml
-bc681c5a4c3cdc09c013df2d2239f3d2	ubuntu_4vdu_day2_monparam_ns/icons/osm.png

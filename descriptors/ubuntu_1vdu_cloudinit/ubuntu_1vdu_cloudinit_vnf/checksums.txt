@@ -1,3 +1,0 @@
-813d411067a9faca4c133e03066b5c45	ubuntu_1vdu_cloudinit_vnf/ubuntu_1vdu_cloudinit_vnf.vnfd.yaml
-c4cf24b5d2c9c8c186a7e77f68b0caed	ubuntu_1vdu_cloudinit_vnf/cloud_init/cloud-config.txt
-bc681c5a4c3cdc09c013df2d2239f3d2	ubuntu_1vdu_cloudinit_vnf/icons/osm.png
