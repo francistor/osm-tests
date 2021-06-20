@@ -1,0 +1,22 @@
+nsd:
+  nsd:
+  - description: Example CNF NS
+    designer: Indra
+    df:
+    - id: default-df
+      vnf-profile:
+      - id: nginx
+        virtual-link-connectivity:
+        - constituent-cpd-id:
+          - constituent-base-element-id: nginx
+            constituent-cpd-id: mgmt-ext
+          virtual-link-profile-id: mgmtnet
+        vnfd-id: nginx_knf
+    id: nginx_ns
+    name: nginx_ns
+    version: '1.0'
+    virtual-link-desc:
+    - id: mgmtnet
+      mgmt-network: 'true'
+    vnfd-id:
+    - nginx_knf

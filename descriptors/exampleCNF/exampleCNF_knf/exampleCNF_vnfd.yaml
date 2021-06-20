@@ -1,0 +1,19 @@
+vnfd:
+  description: Example KNF with Helm chart
+  df:
+  - id: myId
+  ext-cpd:
+  - id: mgmt-ext
+    k8s-cluster-net: mgmtnet
+  id: nginx_knf
+  k8s-cluster:
+    nets:
+    - id: mgmtnet
+  kdu:
+  - name: nginxDeployment
+    helm-chart: nginx
+  mgmt-cp: mgmt-ext
+  product-name: nginx
+  provider: Indra
+  version : '1.0'
+

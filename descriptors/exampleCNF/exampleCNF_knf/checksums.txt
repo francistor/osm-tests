@@ -1,0 +1,4 @@
+30604336a10059942ed049c1581a65eb	exampleCNF_knf/exampleCNF_vnfd.yaml
+797a3dfbd899513d7ed25ab2caef798f	exampleCNF_knf/helm-chart-v3s/nginx/Chart.yaml
+d41d8cd98f00b204e9800998ecf8427e	exampleCNF_knf/helm-chart-v3s/nginx/values.yaml
+36de92cf4f9c6b3e16b988f0abe97765	exampleCNF_knf/helm-chart-v3s/nginx/templates/deployment.yaml
