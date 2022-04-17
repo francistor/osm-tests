@@ -24,23 +24,34 @@ function setNameAsOrphan(fileName){
 // Finds file names starting with ORPHAN and removes that prefix
 function revertOrphans(){
 	orphanFiles = db.fs.files.find({"filename": {$regex: /^ORPHAN_/}});
+	count = orphanFiles.count();
 	orphanFiles.forEach(function(file){
 		db.fs.files.updateOne({"filename": file.filename}, {$set: { "filename": file.filename.substring(7)}});
 	});
-	return orphanFiles.length;
+	return count;
 }
 
 // Deletes orphan named files and chunks
 function deleteOrphans(){
 	orphanFiles = db.fs.files.find({"filename": {$regex: /^ORPHAN_/}});
+	count = orphanFiles.count();
 	orphanFiles.forEach(function(file){
 		// Delete chunks
-		db.fs.chunks.deleteMany({"files_id": file._id});
+		deletedChunks = db.fs.chunks.deleteMany({"files_id": file._id});
 
 		// Delete file
-		db.fs.files.deleteOne({"filename": file.filename});
+		deletedFile = db.fs.files.deleteOne({"filename": file.filename});
+
+		// Verifications
+		if(deletedChunks.deletedCount < 1 || deletedFile.deletedCount != 1){
+			print("deletion of " + file.filename + " affected " + deletedChunks.deletedCount + " and " + deletedFile.deletedCount + " files");
+			exit
+		}
+
+		print(file.filename + " deleted with " + deletedChunks.deletedCount + " chunks");
 	});
-	return orphanFiles.length;
+
+	return count;
 }
 	
 use osm;
@@ -120,8 +131,10 @@ if(action == "orphan-folders"){
 	});
 } else if(action == "delete-orphans"){
 	print("Deleting orphan files");
-	deleteOrphans();
+	let deleted = deleteOrphans();
+	print(deleted + " files deleted");
 } else if(action == "revert-orphans"){
 	print("Reverting files marked as orphan");
-	revertOrphans();
+	let reverted = revertOrphans();
+	print(reverted + " files reverted");
 }
