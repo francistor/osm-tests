@@ -44,13 +44,7 @@ function deleteOrphans(){
 		// Delete file
 		deletedFile = db.fs.files.deleteOne({"filename": file.filename});
 
-		// Verifications
-		if(deletedChunks.deletedCount < 1 || deletedFile.deletedCount != 1){
-			print("deletion of " + file.filename + " affected " + deletedChunks.deletedCount + " and " + deletedFile.deletedCount + " files");
-			exit
-		}
-
-		print(file.filename + " deleted with " + deletedChunks.deletedCount + " chunks");
+		print("deleted " + file.filename + " of type " + file.metadata.type + " with " + deletedChunks.deletedCount + " chunks");
 	});
 
 	return count;
