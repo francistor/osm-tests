@@ -2,11 +2,11 @@
 
 if [[ "$1" = "--help" ]] 
 then
-    echo "usage: osm_mongo_cleaner.sh [orphan-folders|orphan-files|mark-orphans|delete-orphans|revert-orphans]";
+    echo "usage: osm_mongo_cleaner.sh [orphan-folders|orphan-files|mark-orphans|delete-orphans|revert-orphans|all-files|all-folders]";
     exit 0;
 fi
 
-if [[ "$1" != "orphan-folders" ]] &&  [[ "$1" != "orphan-files" ]] && [[ "$1" != "mark-orphans" ]] &&  [[ "$1" != "delete-orphans" ]] && [[ "$1" != "revert-orphans" ]] 
+if [[ "$1" != "orphan-folders" ]] &&  [[ "$1" != "orphan-files" ]] && [[ "$1" != "mark-orphans" ]] &&  [[ "$1" != "delete-orphans" ]] && [[ "$1" != "revert-orphans" ]] && [[ "$1" != "all-files" ]] && [[ "$1" != "all-folders" ]]
 then
     echo "Bad command. Must be one of [orphan-folders|orphan-files|mark-orphans|delete-orphans|revert-orphans]";
     exit 0;

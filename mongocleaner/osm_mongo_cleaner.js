@@ -18,6 +18,8 @@
 
 // Renames the file object prepending "ORPHAN_"
 function setNameAsOrphan(fileName){
+	// Make it idempotent
+	if(fileName.startsWith("ORPHAN_")) return;
 	db.fs.files.updateOne({"filename": fileName}, {$set: { "filename": "ORPHAN_" + fileName}});
 }
 
@@ -109,16 +111,24 @@ mongo_folders.forEach(function(mongo_folder){
 
 // Look for mongo files that do not correspond to a possible object
 let orphan_files=[];
+let mongo_files=[];
 db.fs.files.find().forEach(function(file){
 	let file_components = file.filename.split("/");
 	let folder = file_components[0];
 	if (orphan_folders.includes(folder)){
 		orphan_files.push(file.filename);
-	}
+	} 
+	mongo_files.push(file.filename);
 });
 
 // Execute the specified command
-if(action == "orphan-folders"){
+if(action == "all-folders"){
+	print("All folders. Found: " + mongo_folders.length);
+	mongo_folders;
+} else if(action == "all-files"){
+	print("All files. Found: " + mongo_files.length);
+	mongo_files;
+} else if(action == "orphan-folders"){
 	print("Orphan Folders. Found: " + orphan_folders.length);
 	orphan_folders;
 } else if(action == "orphan-files"){
